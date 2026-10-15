@@ -112,55 +112,58 @@ font-size: 16px;
 </div>
 <div id="ergebnisse"></div>
 <script>
-// Datenbank (Option A - hier kannst du später erweitern!)
-const angebote = [
-            { name: "Paulaner Spezi (Kasten 20x0,5l)", laden: "Lidl", preis: "9.99 €" },
-            { name: "Frische Äpfel Elstar (1kg)", laden: "Aldi", preis: "1.49 €" },
-            { name: "Paulaner Spezi (0,5l Flasche)", laden: "Penny", preis: "0.79 €" },
-            { name: "Bio-Äpfel Gala (500g)", laden: "Penny", preis: "1.99 €" },
-            { name: "Coca-Cola 4er Pack (4x1,25l)", laden: "Aldi", preis: "3.99 €" },
-            { name: "Nutella (750g Riesenglas)", laden: "Lidl", preis: "2.79 €" },
-            { name: "Kerrygold Extra (250g)", laden: "Lidl", preis: "1.69 €" },
-            { name: "Müller Müllermilch (400ml)", laden: "Penny", preis: "0.69 €" },
-            { name: "Gouda jung in Scheiben (400g)", laden: "Aldi", preis: "2.49 €" },
-            { name: "Barilla Pasta (verschiedene Sorten)", laden: "Lidl", preis: "0.89 €" }
-        ];
-function sucheAngebote() {
-let eingabe = document.getElementById('suche').value.toLowerCase().trim();
-let html = "";
-// Verbesserte Suche (Option C): Sucht nach Wortteilen im Namen ODER Laden
-let gefundene = angebote.filter(p => {
-let namePasst = p.name.toLowerCase().includes(eingabe);
-let ladenPasst = p.laden.toLowerCase().includes(eingabe);
-// Extra-Logik für Äpfel/Apfel Umlaut-Toleranz
-if (eingabe === "apfel" || eingabe === "äpfel") {
-return p.name.toLowerCase().includes("apfel") || p.name.toLowerCase().includes("äpfel");
-}
-return namePasst || ladenPasst;
-});
-if (gefundene.length === 0) {
-html = `<div class="no-results">Keine Angebote für "${document.getElementById('suche').value}" gefunden.</div>`;
-} else {
-gefundene.forEach(p => {
-// Bestimme das richtige CSS-Klassendesign für das Logo
-let badgeClass = "badge-default";
-if (p.laden.toLowerCase() === "lidl") badgeClass = "badge-lidl";
-if (p.laden.toLowerCase() === "aldi") badgeClass = "badge-aldi";
-if (p.laden.toLowerCase() === "penny") badgeClass = "badge-penny";
-html += `
-<div class="produkt">
-<div class="details">
-<span class="laden-badge ${badgeClass}">${p.laden}</span>
-<span class="produkt-name">${p.name}</span>
-</div>
-<span class="preis">${p.preis}</span>
-</div>`;
-});
-}
-document.getElementById('ergebnisse').innerHTML = html;
-}
-// Beim Start alle anzeigen
-sucheAngebote();
+let angebote = [];
+
+        // Lädt die Angebote automatisch aus der daten.json Datei
+        async function ladeAngebote() {
+            try {
+                const response = await fetch('daten.json');
+                angebote = await response.json();
+                sucheAngebote(); // Zeigt die Angebote an, sobald sie geladen sind
+            } catch (error) {
+                console.error("Fehler beim Laden der Angebote:", error);
+            }
+        }
+
+        function sucheAngebote() {
+            let eingabe = document.getElementById('suche').value.toLowerCase().trim();
+            let html = "";
+            
+            let gefundene = angebote.filter(p => {
+                let namePasst = p.name.toLowerCase().includes(eingabe);
+                let ladenPasst = p.laden.toLowerCase().includes(eingabe);
+                
+                if (eingabe === "apfel" || eingabe === "äpfel") {
+                    return p.name.toLowerCase().includes("apfel") || p.name.toLowerCase().includes("äpfel");
+                }
+                return namePasst || ladenPasst;
+            });
+
+            if (gefundene.length === 0) {
+                html = `<div class="no-results">Keine Angebote für "${document.getElementById('suche').value}" gefunden.</div>`;
+            } else {
+                gefundene.forEach(p => {
+                    let badgeClass = "badge-default";
+                    if (p.laden.toLowerCase() === "lidl") badgeClass = "badge-lidl";
+                    if (p.laden.toLowerCase() === "aldi") badgeClass = "badge-aldi";
+                    if (p.laden.toLowerCase() === "penny") badgeClass = "badge-penny";
+
+                    html += `
+                        <div class="produkt">
+                            <div class="details">
+                                <span class="laden-badge ${badgeClass}">${p.laden}</span>
+                                <span class="produkt-name">${p.name}</span>
+                            </div>
+                            <span class="preis">${p.preis}</span>
+                        </div>`;
+                });
+            }
+
+            document.getElementById('ergebnisse').innerHTML = html;
+        }
+
+        // Beim Starten der App die Daten laden
+        ladeAngebote();
 </script>
 </body>
 </html>
