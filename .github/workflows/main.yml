@@ -1,22 +1,19 @@
 name: Automatische Prospekt Aktualisierung
 on:
 schedule:
-cron: '0 1 * * 1'
-workflow_dispatch:
+- cron: '01 * * 1'
+workflow_ dispatch:
 jobs:
 refresh-data:
 runs-on: ubuntu-latest
 steps:
-name: Code auschecken
+- name: Code auschecken
 uses: actions/checkout@v4
-name: Python einrichten
-uses: actions/setup-python@v5
-with:
+- name: Python einrichten
+uses: actions/setup-python@v5 with:
 python-version: '3.10'
-name: Skript ausführen
-run: python scraper.py
-name: Änderungen automatisch speichern
-uses: stefanzweifel/git-auto-commit-action@v5
-with:
+- name: Skript ausführen run: python scraper-py
+- name: Änderungen automatisch speichern
+uses: stefanzweifel/git-auto-commit-action@v5 with:
 commit_message: "Angebote automatisch aktualisiert"
-file_pattern: 'daten.json'
+file_pattern: 'daten. json'
