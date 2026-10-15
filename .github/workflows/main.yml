@@ -1,4 +1,5 @@
 name: Automatische Prospekt Aktualisierung
+
 on:
 schedule:
 - cron: '01 * * 1'
