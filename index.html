@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Prospekt-Checker</title>
+<style>
+:root {
+--bg-color: #121212;
+--card-bg: #1e1e1e;
+--text-color: #ffffff;
+--text-muted: #aaaaaa;
+--accent-color: #0a84ff;
+--lidl-color: #005caa;
+--aldi-color: #002d72;
+--penny-color: #d71920;
+}
+body {
+font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+padding: 20px;
+background: var(--bg-color);
+color: var(--text-color);
+margin: 0;
+}
+h2 {
+font-size: 28px;
+font-weight: 700;
+margin-bottom: 20px;
+letter-spacing: -0.5px;
+}
+.search-container {
+position: sticky;
+top: 0;
+background: var(--bg-color);
+padding-bottom: 15px;
+z-index: 10;
+}
+input {
+width: 100%;
+padding: 14px 40px 14px 15px;
+font-size: 16px;
+background: #2c2c2e;
+border: none;
+border-radius: 12px;
+color: white;
+box-sizing: border-box;
+outline: none;
+}
+input::placeholder {
+color: #8e8e93;
+}
+#ergebnisse {
+display: flex;
+flex-direction: column;
+gap: 12px;
+}
+.produkt {
+background: var(--card-bg);
+padding: 16px;
+border-radius: 14px;
+display: flex;
+justify-content: space-between;
+align-items: center;
+box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+border: 1px solid #2c2c2e;
+animation: fadeIn 0.3s ease;
+}
+@keyframes fadeIn {
+from { opacity: 0; transform: translateY(5px); }
+to { opacity: 1; transform: translateY(0); }
+}
+.details {
+display: flex;
+flex-direction: column;
+gap: 6px;
+}
+.produkt-name {
+font-size: 17px;
+font-weight: 600;
+}
+.laden-badge {
+display: inline-block;
+font-size: 11px;
+font-weight: bold;
+padding: 4px 8px;
+border-radius: 6px;
+text-transform: uppercase;
+width: fit-content;
+}
+/* Dynamische Farben für die Discounter /
+.badge-lidl { background: var(--lidl-color); color: white; }
+.badge-aldi { background: var(--aldi-color); color: white; }
+.badge-penny { background: var(--penny-color); color: white; }
+.badge-default { background: #444; color: white; }
+.preis {
+font-size: 18px;
+color: #30d158; /* iOS Grün /
+font-weight: 700;
+}
+.no-results {
+text-align: center;
+color: var(--text-muted);
+margin-top: 40px;
+font-size: 16px;
+}
+</style>
+</head>
+<body>
+<div class="search-container">
+<h2>Angebote</h2>
+<input type="text" id="suche" placeholder="Nach Äpfeln, Spezi oder Laden suchen..." onkeyup="sucheAngebote()">
+</div>
+<div id="ergebnisse"></div>
+<script>
+// Datenbank (Option A - hier kannst du später erweitern!)
+const angebote = [
+            { name: "Paulaner Spezi (Kasten 20x0,5l)", laden: "Lidl", preis: "9.99 €" },
+            { name: "Frische Äpfel Elstar (1kg)", laden: "Aldi", preis: "1.49 €" },
+            { name: "Paulaner Spezi (0,5l Flasche)", laden: "Penny", preis: "0.79 €" },
+            { name: "Bio-Äpfel Gala (500g)", laden: "Penny", preis: "1.99 €" },
+            { name: "Coca-Cola 4er Pack (4x1,25l)", laden: "Aldi", preis: "3.99 €" },
+            { name: "Nutella (750g Riesenglas)", laden: "Lidl", preis: "2.79 €" },
+            { name: "Kerrygold Extra (250g)", laden: "Lidl", preis: "1.69 €" },
+            { name: "Müller Müllermilch (400ml)", laden: "Penny", preis: "0.69 €" },
+            { name: "Gouda jung in Scheiben (400g)", laden: "Aldi", preis: "2.49 €" },
+            { name: "Barilla Pasta (verschiedene Sorten)", laden: "Lidl", preis: "0.89 €" }
+        ];
+function sucheAngebote() {
+let eingabe = document.getElementById('suche').value.toLowerCase().trim();
+let html = "";
+// Verbesserte Suche (Option C): Sucht nach Wortteilen im Namen ODER Laden
+let gefundene = angebote.filter(p => {
+let namePasst = p.name.toLowerCase().includes(eingabe);
+let ladenPasst = p.laden.toLowerCase().includes(eingabe);
+// Extra-Logik für Äpfel/Apfel Umlaut-Toleranz
+if (eingabe === "apfel" || eingabe === "äpfel") {
+return p.name.toLowerCase().includes("apfel") || p.name.toLowerCase().includes("äpfel");
+}
+return namePasst || ladenPasst;
+});
+if (gefundene.length === 0) {
+html = `<div class="no-results">Keine Angebote für "${document.getElementById('suche').value}" gefunden.</div>`;
+} else {
+gefundene.forEach(p => {
+// Bestimme das richtige CSS-Klassendesign für das Logo
+let badgeClass = "badge-default";
+if (p.laden.toLowerCase() === "lidl") badgeClass = "badge-lidl";
+if (p.laden.toLowerCase() === "aldi") badgeClass = "badge-aldi";
+if (p.laden.toLowerCase() === "penny") badgeClass = "badge-penny";
+html += `
+<div class="produkt">
+<div class="details">
+<span class="laden-badge ${badgeClass}">${p.laden}</span>
+<span class="produkt-name">${p.name}</span>
+</div>
+<span class="preis">${p.preis}</span>
+</div>`;
+});
+}
+document.getElementById('ergebnisse').innerHTML = html;
+}
+// Beim Start alle anzeigen
+sucheAngebote();
+</script>
+</body>
+</html>
