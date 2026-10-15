@@ -1,5 +1,5 @@
 import json
-# Die neuen Angebote, die der Roboter geholt hat
+# Die neuen Angebote, die der Roboter jede Woche frisch einträgt
 
 neue_angebote = [
 {"name": "Paulaner Spezi (Kasten 20x0,5l)", "laden": "Lidl", "preis": "7.99 €"},
