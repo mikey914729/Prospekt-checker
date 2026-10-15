@@ -20,6 +20,6 @@ name: Änderungen auf GitHub speichern
 run: |
 git config --global user.name "ProspektBot"
 git config --global user.email "bot@github.com"
-git add index.html
+git add daten.json
 git commit -m "Angebote automatisch aktualisiert" || exit 0
 git push
